@@ -21,12 +21,15 @@ class LoremIpsum
     /**
      * First
      *
-     * Whether or not we should be starting the string with "Lorem ipsum..."
+     * Array of opening lorem ipsum words
      *
      * @access private
-     * @var    boolean
+     * @var    array
      */
-    private $first = true;
+    private $first = array(
+      'lorem',        'ipsum',       'dolor',        'sit',
+      'amet',         'consectetur', 'adipiscing',   'elit'
+    );
 
     /**
      * Words
@@ -38,10 +41,6 @@ class LoremIpsum
      * @var    array
      */
     public $words = array(
-        // Lorem ipsum...
-        'lorem',        'ipsum',       'dolor',        'sit',
-        'amet',         'consectetur', 'adipiscing',   'elit',
-        // The rest of the vocabulary
         'a',            'ac',          'accumsan',     'ad',
         'aenean',       'aliquam',     'aliquet',      'ante',
         'aptent',       'arcu',        'at',           'auctor',
@@ -112,9 +111,9 @@ class LoremIpsum
      * @param  mixed   $tags string or array of HTML tags to wrap output with
      * @return array   generated lorem ipsum words
      */
-    public function wordsArray($count = 1, $tags = false)
+    public function wordsArray($count = 1, $tags = false, $swl = true)
     {
-        return $this->words($count, $tags, true);
+        return $this->words($count, $tags, true, $swl);
     }
 
     /**
@@ -128,7 +127,7 @@ class LoremIpsum
      * @param  boolean $array whether an array or a string should be returned
      * @return mixed   string or array of generated lorem ipsum words
      */
-    public function words($count = 1, $tags = false, $array = false)
+    public function words($count = 1, $tags = false, $array = false, $swl = true)
     {
         $words      = array();
         $word_count = 0;
@@ -139,7 +138,7 @@ class LoremIpsum
             $shuffle = true;
 
             while ($shuffle) {
-                $this->shuffle();
+                shuffle($this->words);
 
                 // Checks that the last word of the list and the first word of
                 // the list that's about to be appended are not the same
@@ -150,8 +149,16 @@ class LoremIpsum
                 }
             }
         }
+        if($swl) {
+          $words = array_merge($this->first, $words);
+        }
 
         $words = array_slice($words, 0, $count);
+
+        if(!$array) {
+          $words = implode(" ",$this->sentencise($words));
+          $words = explode(" ",$words);
+        }
 
         return $this->output($words, $tags, $array);
     }
@@ -180,9 +187,9 @@ class LoremIpsum
      * @param  mixed   $tags string or array of HTML tags to wrap output with
      * @return array   generated lorem ipsum sentences
      */
-    public function sentencesArray($count = 1, $tags = false)
+    public function sentencesArray($count = 1, $tags = false, $swl = true)
     {
-        return $this->sentences($count, $tags, true);
+        return $this->sentences($count, $tags, true, $swl);
     }
 
     /**
@@ -196,12 +203,12 @@ class LoremIpsum
      * @param  boolean $array whether an array or a string should be returned
      * @return mixed   string or array of generated lorem ipsum sentences
      */
-    public function sentences($count = 1, $tags = false, $array = false)
+    public function sentences($count = 1, $tags = false, $array = false, $swl = true)
     {
         $sentences = array();
 
         for ($i = 0; $i < $count; $i++) {
-            $sentences[] = $this->wordsArray($this->gauss(24.46, 5.08));
+            $sentences[] = $this->wordsArray($this->gauss(24.46, 5.08),false,$swl);
         }
 
         $this->punctuate($sentences);
@@ -233,9 +240,9 @@ class LoremIpsum
      * @param  mixed   $tags string or array of HTML tags to wrap output with
      * @return array   generated lorem ipsum paragraphs
      */
-    public function paragraphsArray($count = 1, $tags = false)
+    public function paragraphsArray($count = 1, $tags = false, $swl = true)
     {
-        return $this->paragraphs($count, $tags, true);
+        return $this->paragraphs($count, $tags, true, $swl);
     }
 
     /**
@@ -249,15 +256,171 @@ class LoremIpsum
      * @param  boolean $array whether an array or a string should be returned
      * @return mixed   string or array of generated lorem ipsum paragraphs
      */
-    public function paragraphs($count = 1, $tags = false, $array = false)
+    public function paragraphs($count = 1, $tags = false, $array = false, $swl = true)
     {
         $paragraphs = array();
 
         for ($i = 0; $i < $count; $i++) {
-            $paragraphs[] = $this->sentences($this->gauss(5.8, 1.93));
+            $paragraphs[] = $this->sentences($this->gauss(5.8, 1.93),false,$swl);
         }
 
         return $this->output($paragraphs, $tags, $array, "\n\n");
+    }
+    /**
+     * List
+     *
+     * Generates a list item of lorem ipsum.
+     *
+     * @access public
+     * @param  mixed  $tags string or array of HTML tags to wrap output with
+     * @return string generated lorem ipsum list
+     */
+    public function list_($tags = false)
+    {
+      return $this->lists(1, $tags);
+    }
+    /**
+     * List Array
+     *
+     * Generates an array of lorem ipsum list items.
+     *
+     * @access public
+     * @param  integer $count how many list items to generate
+     * @param  mixed   $tags string or array of HTML tags to wrap output with
+     * @return array   generated lorem ipsum lists
+     */
+    public function listArray($count = 1, $tags = false, $swl = true) {
+      return $this->lists($count, $tags, true, $swl);
+    }
+    /**
+     * Lists
+     *
+     * Generates lists of lorem ipsum.
+     *
+     * @access public
+     * @param  integer $count how many list itesm to generate
+     * @param  mixed   $tags string or array of HTML tags to wrap output with
+     * @param  boolean $array whether an array or a string should be returned
+     * @return mixed   string or array of generated lorem ipsum list items
+     */
+    public function lists($count = 1, $tags = false, $array = false, $swl = true) {
+
+      $lists = array();
+
+      for ($i = 0; $i < $count; $i++) {
+          $lists[] = $this->wordsArray($this->gauss(9.3, 1.24), false, $swl);
+      }
+
+      $this->punctuate($lists);
+
+      return $this->output($lists, $tags, $array, "\n\n");
+    }
+    /**
+     * Byte
+     *
+     * Generates a byte lorem ipsum.
+     *
+     * @access public
+     * @param  mixed  $tags string or array of HTML tags to wrap output with
+     * @return string generated lorem ipsum byte
+     */
+    public function byte($tags = false) {
+      return $this->bytes(1, $tags);
+    }
+    /**
+     * Byte Array
+     *
+     * Generates an array of lorem ipsum bytes.
+     *
+     * @access public
+     * @param  integer $count how many bytes to generate
+     * @param  mixed   $tags string or array of HTML tags to wrap output with
+     * @return array   generated lorem ipsum bytes
+     */
+    public function byteArray($count = 1, $tags = false, $swl = true) {
+      return $this->bytes($count, $tags, true, $swl);
+    }
+    /**
+     * Bytes
+     *
+     * Generates bytes of lorem ipsum.
+     *
+     * @access public
+     * @param  integer $count how many bytes to generate
+     * @param  mixed   $tags string or array of HTML tags to wrap output with
+     * @param  boolean $array whether an array or a string should be returned
+     * @return mixed   string or array of generated lorem ipsum bytes
+     */
+    public function bytes($count = 1, $tags = false, $array = false, $swl = true) {
+      $bytes = array();
+      $letterCount = 0;
+      $byteString = "";
+      $secondLastElem = "";
+      $lastElem = "";
+
+      while($letterCount<$count) {
+        $bytes[] = $this->sentences(1,false,false,$swl);
+        $swl = false;
+        $letterCount += strlen($bytes[count($bytes)-1]);
+      }
+      $byteString = implode(" ",$bytes);
+      if(strlen($byteString)>$count) {
+        $byteString = substr($byteString,0,$count);
+        if(substr($byteString,-1)==" ") {
+          $byteString = substr($byteString,0,-1) . "s";
+        }
+
+        $bytes = explode(" ",$byteString);
+
+        $lastElem = $bytes[count($bytes)-1];
+
+        if($bytes[count($bytes)-2]) {
+          $secondLastElem = $bytes[count($bytes)-2];
+          if(strlen($lastElem)<3 && strlen($secondLastElem)<10) {
+            $lastElem = $this->wordOfLength(strlen($lastElem) + strlen($secondLastElem));
+            array_pop($bytes);
+          }
+        }
+
+        if(substr($lastElem,-1)!="." && strlen($byteString)>2) {
+          $lastElem = substr($lastElem,0,-1) . ".";
+        }
+        $bytes[count($bytes)-1] = $lastElem;
+      }
+
+      return $this->output($bytes,$tags,$array);
+
+    }
+    /**
+    * wordOfLength
+    *
+    * Private function to return a word of particular length
+    */
+    private function wordOfLength($count = 1) {
+      $pos = mt_rand(0,count($this->words)-1);
+  		$word = "";
+  		$i = 0;
+  		if($count===1) {
+  			return "a";
+  		}
+  		if($count>0) {
+  			while(strlen($word)!==$count) {
+
+  				$word = $this->words[$pos];
+
+  				$pos++;
+  				if($pos>count($this->words)-1) {
+  					$pos = 0;
+  					$i++;
+  					if($i>1) {
+  						$count -= 1;
+  					}
+  				}
+  			}
+  		}
+
+
+  		return $word;
     }
 
     /**
@@ -281,29 +444,41 @@ class LoremIpsum
 
         return $z * $std_dev + $mean;
     }
-
     /**
-     * Shuffle
+     * Sentencise
      *
-     * Shuffles the words, forcing "Lorem ipsum..." at the beginning if it is
-     * the first time we are generating the text.
      *
      * @access private
+     * @param  array   $words to be arranged into sentences
      */
-    private function shuffle()
-    {
-        if ($this->first) {
-            $this->first = array_slice($this->words, 0, 8);
-            $this->words = array_slice($this->words, 8);
+    private function sentencise($words = array()) {
+      $end = min(round($this->gauss(24.46, 5.08)),count($words));
+      $begin = 0;
+      $count = 0;
+      $sentences = array();
 
-            shuffle($this->words);
+      if(count($words)<1) {
+        return array();
+      }
 
-            $this->words = $this->first + $this->words;
+      $words[0] = ucfirst($words[0]);
 
-            $this->first = false;
-        } else {
-            shuffle($this->words);
+      while($begin<count($words)) {
+        if((count($words)-($begin+$end))<6) {
+          $end = count($words)-$begin;
         }
+
+        $sentences[] = array_slice($words,$begin,$end);
+
+        $begin += $end;
+        $end = min(round($this->gauss(24.46, 5.08)),count($words)-$begin);
+
+      }
+
+      $this->punctuate($sentences);
+
+      return $sentences;
+
     }
 
     /**
@@ -320,22 +495,18 @@ class LoremIpsum
     {
         foreach ($sentences as $key => $sentence) {
             $words = count($sentence);
-
             // Only worry about commas on sentences longer than 4 words
             if ($words > 4) {
                 $mean    = log($words, 6);
                 $std_dev = $mean / 6;
                 $commas  = round($this->gauss($mean, $std_dev));
-
                 for ($i = 1; $i <= $commas; $i++) {
                     $word = round($i * $words / ($commas + 1));
-
                     if ($word < ($words - 1) && $word > 0) {
                         $sentence[$word] .= ',';
                     }
                 }
             }
-
             $sentences[$key] = ucfirst(implode(' ', $sentence) . '.');
         }
     }
@@ -386,4 +557,3 @@ class LoremIpsum
         return $strings;
     }
 }
-

@@ -209,6 +209,7 @@ class LoremIpsum
 
         for ($i = 0; $i < $count; $i++) {
             $sentences[] = $this->wordsArray($this->gauss(24.46, 5.08),false,$swl);
+            $swl = false;
         }
 
         $this->punctuate($sentences);
@@ -261,7 +262,8 @@ class LoremIpsum
         $paragraphs = array();
 
         for ($i = 0; $i < $count; $i++) {
-            $paragraphs[] = $this->sentences($this->gauss(5.8, 1.93),false,$swl);
+            $paragraphs[] = $this->sentences($this->gauss(5.8, 1.93),false,false,$swl);
+            $swl = false;
         }
 
         return $this->output($paragraphs, $tags, $array, "\n\n");
@@ -309,6 +311,7 @@ class LoremIpsum
 
       for ($i = 0; $i < $count; $i++) {
           $lists[] = $this->wordsArray($this->gauss(9.3, 1.24), false, $swl);
+          $swl = false;
       }
 
       $this->punctuate($lists);
